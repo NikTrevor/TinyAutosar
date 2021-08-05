@@ -4,8 +4,8 @@
 enum class Dio_ChannelType { Pin_13 };
 enum class Dio_LevelType { Reset = 0, Set = 1 };
 
-static const Dio_LevelType STD_LOW {Dio_LevelType::Reset};
-static const Dio_LevelType STD_HIGH {Dio_LevelType::Set};
+constexpr Dio_LevelType STD_LOW {Dio_LevelType::Reset};
+constexpr Dio_LevelType STD_HIGH {Dio_LevelType::Set};
 
 static const Dio_ChannelType Dio_Pin_13 {Dio_ChannelType::Pin_13};
 
