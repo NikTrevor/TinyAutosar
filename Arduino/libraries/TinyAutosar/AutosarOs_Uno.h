@@ -3,6 +3,7 @@
 
 #include "Dio.h"
 
-void EcuM_Init(void);
+void EcuM_Init();
+void Port_Init(void*);
 
 #endif /* AUTOSAR_OS_UNO_H_ */
