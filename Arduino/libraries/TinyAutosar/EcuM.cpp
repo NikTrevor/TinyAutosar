@@ -12,3 +12,13 @@ void EcuM_Init()
 {
 	Port_Init(0);
 }
+
+void SetupTask(void (*task)(void))
+{
+	
+}
+
+void WaitEvent(TaskEvent event)
+{
+	
+}
