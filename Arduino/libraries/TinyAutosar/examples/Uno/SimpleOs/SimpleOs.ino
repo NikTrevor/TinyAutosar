@@ -1,6 +1,6 @@
 #include <AutosarOs_Uno.h>
 
-void Task_A()
+void Task_A(void)
 {
   for ( ; ; ) {
     WaitEvent(Task_Event_A);
@@ -9,13 +9,11 @@ void Task_A()
   }
 }
 
-void Task_B()
+void Task_B(void)
 {
   for ( ; ; ) {
     WaitEvent(Task_Event_B);
     Dio_WriteChannel(Dio_Pin_13, STD_HIGH);
-    delay(200);
-    Dio_WriteChannel(Dio_Pin_13, STD_LOW);
     delay(200);
   }
 }

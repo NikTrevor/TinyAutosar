@@ -48,6 +48,51 @@
 					"pop    __tmp_reg__                             \n\t"   \
 				);
 
+#define SAVE_CONTEXT()			                                                        \
+		asm volatile (		"push   __tmp_reg__                             \n\t"   \
+					"in     __tmp_reg__, __SREG__                   \n\t"   \
+					"cli                                            \n\t"   \
+					"push   __tmp_reg__                             \n\t"   \
+					"push   __zero_reg__                            \n\t"   \
+					"clr    __zero_reg__                            \n\t"   \
+					"push   r2                                      \n\t"   \
+					"push   r3                                      \n\t"   \
+					"push   r4                                      \n\t"   \
+					"push   r5                                      \n\t"   \
+					"push   r6                                      \n\t"   \
+					"push   r7                                      \n\t"   \
+					"push   r8                                      \n\t"   \
+					"push   r9                                      \n\t"   \
+					"push   r10                                     \n\t"   \
+					"push   r11                                     \n\t"   \
+					"push   r12                                     \n\t"   \
+					"push   r13                                     \n\t"   \
+					"push   r14                                     \n\t"   \
+					"push   r15                                     \n\t"   \
+					"push   r16                                     \n\t"   \
+					"push   r17                                     \n\t"   \
+					"push   r18                                     \n\t"   \
+					"push   r19                                     \n\t"   \
+					"push   r20                                     \n\t"   \
+					"push   r21                                     \n\t"   \
+					"push   r22                                     \n\t"   \
+					"push   r23                                     \n\t"   \
+					"push   r24                                     \n\t"   \
+					"push   r25                                     \n\t"   \
+					"push   r26                                     \n\t"   \
+					"push   r27                                     \n\t"   \
+					"push   r28                                     \n\t"   \
+					"push   r29                                     \n\t"   \
+					"push   r30                                     \n\t"   \
+					"push   r31                                     \n\t"   \
+					"lds    r26, current_tcb                        \n\t"   \
+					"lds    r27, current_tcb + 1                    \n\t"   \
+					"in     __tmp_reg__, __SP_L__                   \n\t"   \
+					"st     x+, __tmp_reg__                         \n\t"   \
+					"in     __tmp_reg__, __SP_H__                   \n\t"   \
+					"st     x+, __tmp_reg__                         \n\t"   \
+				);
+
 class scope_lock {
 	scope_lock(const scope_lock&)			= delete;
 	scope_lock(scope_lock&&)			= delete;
@@ -135,10 +180,10 @@ Status SetupTask(void (*task)(void))
 		return Status::NOT_OK;
 	}
 
-	thread_control_block* newTCB = &all_tcbs[tasks_total++];
+	thread_control_block* newTCB = &all_tcbs[tasks_total];
 	newTCB->top_of_stack = init_task_stack(newTCB->stack_pointer, task, nullptr);
-	asm volatile( "" ::: "memory" );
 	current_tcb = newTCB;
+	tasks_total++;
 	return Status::OK;
 }
 
@@ -158,5 +203,13 @@ void EcuM_Init(void)
 
 void WaitEvent(TaskEvent event)
 {
-	
+	static_cast<void>(event);
+	SAVE_CONTEXT();
+	tasks_current++;
+	if (tasks_current >= tasks_total) {
+		tasks_current = 0;
+	}
+	current_tcb = &all_tcbs[tasks_current];
+	RESTORE_CONTEXT();
+	__asm__ __volatile__ ( "ret" );
 }
