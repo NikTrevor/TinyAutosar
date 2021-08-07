@@ -18,10 +18,19 @@ void Task_B(void)
   }
 }
 
+void ErrorHook(void)
+{
+  while (1) { }
+}
+
 void setup()
 {
-  SetupTask(Task_A);
-  SetupTask(Task_B);
+  if (E_OK != SetupTask(Task_A)) {
+    ErrorHook();
+  }
+  if (E_OK != SetupTask(Task_B)) {
+    ErrorHook();
+  }
   EcuM_Init();
 }
 
