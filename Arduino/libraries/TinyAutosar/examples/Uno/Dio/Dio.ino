@@ -2,14 +2,15 @@
 
 void setup()
 {
-	EcuM_Init();
+  Port_Init(NULL);
 }
 
 void loop()
 {
-  delay(200);
+  delay(500);
   Dio_WriteChannel(Dio_Pin_13, STD_LOW);
-  delay(200);
+
+  delay(500);
   Dio_WriteChannel(Dio_Pin_13, STD_HIGH);
 }
 
