@@ -111,8 +111,8 @@ public:
 };
 
 struct thread_control_block {
-	uint8_t* top_of_stack;
-	uint8_t* stack_pointer = *(&stack_allocation + 1) - 1;
+	uint8_t* top_of_stack;					/* This must be the first member */
+	uint8_t* stack_pointer = *(&stack_allocation + 1) - 1;	/* This must be the second member */
 private:
 	uint8_t stack_allocation[192] = { 0, };
 };
@@ -176,6 +176,7 @@ Status SetupTask(void (*task)(void))
 
 	thread_control_block* newTCB = &all_tcbs[tasks_total];
 	newTCB->top_of_stack = init_task_stack(newTCB->stack_pointer, task, nullptr);
+	asm volatile( "" ::: "memory" );
 	current_tcb = newTCB;
 	tasks_total++;
 	return Status::OK;
