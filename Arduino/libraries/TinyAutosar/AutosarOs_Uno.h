@@ -3,14 +3,15 @@
 
 #include "Dio.h"
 
+enum class Status { OK, NOT_OK };
 enum class TaskEvent { EventA, EventB };
 
 #define Task_Event_A TaskEvent::EventA
 #define Task_Event_B TaskEvent::EventB
 
-void EcuM_Init();
 void Port_Init(void*);
-void SetupTask(void (*task)(void));
+void EcuM_Init();
+Status SetupTask(void (*task)(void));
 void WaitEvent(TaskEvent event);
 
 #endif /* AUTOSAR_OS_UNO_H_ */

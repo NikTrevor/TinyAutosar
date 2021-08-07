@@ -15,6 +15,8 @@ void Task_B()
     WaitEvent(Task_Event_B);
     Dio_WriteChannel(Dio_Pin_13, STD_HIGH);
     delay(200);
+    Dio_WriteChannel(Dio_Pin_13, STD_LOW);
+    delay(200);
   }
 }
 
