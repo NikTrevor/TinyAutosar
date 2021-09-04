@@ -9,6 +9,24 @@ typedef uint16 Com_SignalIdType;
 typedef uint8 Com_PduGroupIdType;
 typedef uint16 Com_BitPositionType;
 
+typedef uint16 PduIdType;
+typedef enum {
+	IMMEDIATE,
+	DEFERRED
+} Com_IPduSignalProcessingMode;
+
+typedef enum {
+	RECEIVE,
+	SEND
+} Com_IPduDirection;
+
+typedef enum {
+	DIRECT,
+	MIXED,
+	NONE,
+	PERIODIC
+} ComTxModeMode_type;
+
 /* Signal definitions */
 #define CanDB_Signal_32_21_BE_Tester 0
 #define CanDB_Signal_1_4_LE_Tester 1
@@ -209,6 +227,148 @@ typedef struct {
 	/** Marks the end of list for the signal configuration array. */
 	const uint8 Com_Arc_EOL;
 } ComSignal_type;
+
+/** Configuration structure for Tx-mode for I-PDUs. */
+typedef struct {
+
+	/** Transmission mode for this IPdu. */
+	const ComTxModeMode_type ComTxModeMode;
+
+	/** Defines the number of times this IPdu will be sent in each IPdu cycle.
+	 * Should be set to 0 for DIRECT transmission mode and >0 for DIRECT/N-times mode.
+	 */
+	const uint8 ComTxModeNumberOfRepetitions;
+
+	/** Defines the period of the transmissions in DIRECT/N-times and MIXED transmission modes. */
+	const uint32 ComTxModeRepetitionPeriodFactor;
+
+	/** Time before first transmission of this IPDU. (i.e. between the ipdu group start and this IPDU is sent for the first time. */
+	const uint32 ComTxModeTimeOffsetFactor;
+
+	/** Period of cyclic transmission. */
+	const uint32 ComTxModeTimePeriodFactor;
+} ComTxMode_type;
+
+/** Extra configuration structure for Tx I-PDUs. */
+typedef struct {
+
+	/** Minimum delay between successive transmissions of the IPdu. */
+	const uint32 ComTxIPduMinimumDelayFactor;
+
+	/** COM will fill unused areas within an IPdu with this bit patter.
+	 */
+	const uint8 ComTxIPduUnusedAreasDefault;
+
+	/** Transmission modes for the IPdu.
+	 * TMS is not implemented so only one static transmission mode is supported.
+	 */
+	const ComTxMode_type ComTxModeTrue;
+
+	//ComTxMode_type ComTxModeFalse;
+} ComTxIPdu_type;
+
+/** Configuration structure for an I-PDU. */
+typedef struct {
+
+	/** Callout function of this IPDU.
+	 * The callout function is an optional function used both on sender and receiver side.
+	 * If configured, it determines whether an IPdu is considered for further processing. If
+	 * the callout return false the IPdu will not be received/sent.
+	 */
+	boolean (*ComIPduCallout)(PduIdType PduId, const uint8 *IPduData);
+
+
+	/** The outgoing PDU id. For polite PDU id handling. */
+	const uint8 ArcIPduOutgoingId;
+
+	/** Signal processing mode for this IPDU. */
+	const Com_IPduSignalProcessingMode ComIPduSignalProcessing;
+
+	/** Size of the IPDU in bytes.
+	 * Range 0-8 for CAN and LIN and 0-256 for FlexRay.
+	 */
+	const uint8 ComIPduSize;
+
+	/** The direction of the IPDU. Receive or Send. */
+	const Com_IPduDirection ComIPduDirection;
+
+	/** Reference to the IPDU group that this IPDU belongs to. */
+	const uint8 ComIPduGroupRef;
+
+	/** Container of transmission related parameters. */
+	const ComTxIPdu_type ComTxIPdu;
+
+	/** Reference to the actual pdu data storage */
+	void *const ComIPduDataPtr;
+	void *const ComIPduDeferredDataPtr;
+
+	/** References to all signals and signal groups contained in this IPDU.
+	 * It probably makes little sense not to define at least one signal or signal group for each IPDU.
+	 */
+	const ComSignal_type * const *ComIPduSignalRef;
+
+	const ComSignal_type * const ComIPduDynSignalRef;
+
+	/*
+	 * The following two variables are used to control the per I-PDU based Rx/Tx-deadline monitoring.
+	 */
+	//const uint32 Com_Arc_DeadlineCounter;
+	//const uint32 Com_Arc_TimeoutFactor;
+
+	/* Transmission related timers and parameters.
+	 * These are internal variables and should not be configured.
+	 */
+	//ComTxIPduTimer_type Com_Arc_TxIPduTimers;
+
+	/** Marks the end of list for this configuration array. */
+	const uint8 Com_Arc_EOL;
+
+} ComIPdu_type;
+
+/** Configuration structure for I-PDU groups */
+typedef struct ComIPduGroup_type {
+	/** ID of this group.
+	 * Range 0 to 31.
+	 */
+	const uint8 ComIPduGroupHandleId;
+
+	// reference to the group that this group possibly belongs to.
+	//struct ComIPduGroup_type *ComIPduGroupRef;
+
+	/** Marks the end of list for the I-PDU group configuration array. */
+	const uint8 Com_Arc_EOL;
+} ComIPduGroup_type;
+
+/** Top-level configuration container for COM. Exists once per configuration. */
+typedef struct {
+
+	/** The ID of this configuration. This is returned by Com_GetConfigurationId(); */
+	const uint8 ComConfigurationId;
+
+	/*
+	 * Signal Gateway mappings.
+	 * Not Implemented yet.
+	ComGwMapping_type ComGwMapping[];
+	 */
+
+	/** IPDU definitions */
+	const ComIPdu_type *ComIPdu;
+
+	//uint16 Com_Arc_NIPdu;
+
+	/** IPDU group definitions */
+	const ComIPduGroup_type *ComIPduGroup;
+
+	/** Signal definitions */
+	const ComSignal_type *ComSignal;
+
+	// Signal group definitions
+	//ComSignalGroup_type *ComSignalGroup;
+
+	/** Group signal definitions */
+	const ComGroupSignal_type *ComGroupSignal;
+
+} Com_ConfigType;
 
 void Com_MainFunctionRx();
 void Com_MainFunctionTx();

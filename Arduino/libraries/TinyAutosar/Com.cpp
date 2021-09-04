@@ -4,6 +4,8 @@
 #define GET_Signal(SignalId) \
 	(&ComConfig->ComSignal[SignalId])
 
+const Com_ConfigType *ComConfig;
+
 /*
  * Signal init values.
  */
@@ -301,8 +303,8 @@ uint8 Com_ReceiveSignal(Com_SignalIdType SignalId, void* SignalDataPtr)
 uint8 Com_SendSignal(Com_SignalIdType SignalId, const void *SignalDataPtr)
 {
 	(void)SignalId; (void)SignalDataPtr;
-	///* Store pointer to signal for easier coding */
-	//const ComSignal_type *Signal = GET_Signal(SignalId);
+	/* Store pointer to signal for easier coding */
+	const ComSignal_type *Signal = GET_Signal(SignalId);
 	//const ComIPdu_type *IPdu = GET_IPdu(Signal->ComIPduHandleId);
 	//Com_Arc_IPdu_type *Arc_IPdu = GET_ArcIPdu(Signal->ComIPduHandleId);
 
