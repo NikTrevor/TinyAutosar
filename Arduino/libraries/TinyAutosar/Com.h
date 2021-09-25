@@ -376,4 +376,50 @@ uint8 Com_ReceiveSignal(Com_SignalIdType SignalId, void* SignalDataPtr);
 uint8 Com_SendSignal(Com_SignalIdType SignalId, const void *SignalDataPtr);
 void Com_IpduGroupStart(Com_PduGroupIdType IpduGroupId, boolean Initialize);
 
+#define GET_IPdu(IPduId) (&ComConfig->ComIPdu[IPduId])
+#define GET_ArcIPdu(IPduId) (&Com_Arc_Config.ComIPdu[IPduId])
+
+typedef struct {
+	uint8  ComTxIPduNumberOfRepetitionsLeft;
+	uint32 ComTxModeRepetitionPeriodTimer;
+	uint32 ComTxIPduMinimumDelayTimer;
+	uint32 ComTxModeTimePeriodTimer;
+} Com_Arc_TxIPduTimer_type;
+
+typedef struct {
+
+	Com_Arc_TxIPduTimer_type Com_Arc_TxIPduTimers;
+	uint8 Com_Arc_IpduStarted;
+	uint16 Com_Arc_DynSignalLength;
+	uint16 Com_Arc_DeferredDynSignalLength;
+} Com_Arc_IPdu_type;
+
+typedef struct {
+
+	uint32 Com_Arc_DeadlineCounter;
+	uint8 ComSignalUpdated;
+} Com_Arc_Signal_type;
+
+typedef struct {
+	void *Com_Arc_ShadowBuffer;
+	uint8 ComSignalUpdated;
+	uint8 Com_Arc_EOL;
+} Com_Arc_GroupSignal_type;
+
+typedef struct {
+	Com_Arc_IPdu_type *ComIPdu; // Only used in PduIdCheck()
+	Com_Arc_Signal_type *ComSignal;
+	Com_Arc_GroupSignal_type *ComGroupSignal;
+} Com_Arc_Config_type;
+
+typedef uint16 PduLengthType;
+
+typedef struct {
+	PduLengthType currentPosition;
+	boolean locked;
+} Com_BufferPduStateType;
+
+#define COM_N_IPDUS 2
+#define COM_BUSY 0x81
+
 #endif /* AUTOSAR_COM_UNO_COM_H_ */

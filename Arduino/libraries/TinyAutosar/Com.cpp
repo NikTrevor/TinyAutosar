@@ -283,6 +283,91 @@ const ComSignal_type ComSignal[] = {
 }
 };
 
+Com_Arc_IPdu_type Com_Arc_IPdu[] = {
+	{ // CanDB_Message_1
+		.Com_Arc_TxIPduTimers = {
+			.ComTxIPduNumberOfRepetitionsLeft = 0,
+			.ComTxModeRepetitionPeriodTimer = 0,
+			.ComTxIPduMinimumDelayTimer = 0,
+			.ComTxModeTimePeriodTimer = 0
+		},		
+		.Com_Arc_IpduStarted = 0	
+	},
+	{ // CanDB_Message_2
+		.Com_Arc_TxIPduTimers = {
+			.ComTxIPduNumberOfRepetitionsLeft = 0,
+			.ComTxModeRepetitionPeriodTimer = 0,
+			.ComTxIPduMinimumDelayTimer = 0,
+			.ComTxModeTimePeriodTimer = 0
+		},		
+		.Com_Arc_IpduStarted = 0	
+	}
+};
+
+Com_Arc_Signal_type Com_Arc_Signal[] = {
+	{ // CanDB_Signal_32_21_BE_Tester
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_1_4_LE_Tester
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_45_12_LE_Tester
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_29_12_BE_Tester
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_32_21_BE
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_1_4_LE
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_45_12_LE
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	},
+	
+	{ // CanDB_Signal_29_12_BE
+		.Com_Arc_DeadlineCounter = 0,
+		.ComSignalUpdated = 0,
+	}
+};
+
+Com_BufferPduStateType Com_BufferPduState[COM_N_IPDUS];
+
+PduIdType getPduId(const ComIPdu_type* IPdu) {
+	return (PduIdType)(IPdu - (ComConfig->ComIPdu));
+}
+
+boolean isPduBufferLocked(PduIdType id) {
+	boolean bufferLocked = Com_BufferPduState[id].locked;
+	if (bufferLocked) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+Com_Arc_Config_type Com_Arc_Config = {
+	.ComIPdu = Com_Arc_IPdu,
+	.ComSignal = Com_Arc_Signal,
+	.ComGroupSignal = NULL
+};
+
+
 void Com_MainFunctionRx()
 {
 	
@@ -305,12 +390,12 @@ uint8 Com_SendSignal(Com_SignalIdType SignalId, const void *SignalDataPtr)
 	(void)SignalId; (void)SignalDataPtr;
 	/* Store pointer to signal for easier coding */
 	const ComSignal_type *Signal = GET_Signal(SignalId);
-	//const ComIPdu_type *IPdu = GET_IPdu(Signal->ComIPduHandleId);
-	//Com_Arc_IPdu_type *Arc_IPdu = GET_ArcIPdu(Signal->ComIPduHandleId);
+	const ComIPdu_type *IPdu = GET_IPdu(Signal->ComIPduHandleId);
+	Com_Arc_IPdu_type *Arc_IPdu = GET_ArcIPdu(Signal->ComIPduHandleId);
 
-	//if (isPduBufferLocked(getPduId(IPdu))) {
-		//return COM_BUSY;
-	//}
+	if (isPduBufferLocked(getPduId(IPdu))) {
+		return COM_BUSY;
+	}
 
 	//Com_WriteSignalDataToPdu(Signal->ComHandleId, SignalDataPtr);
 
