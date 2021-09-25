@@ -422,4 +422,20 @@ typedef struct {
 #define COM_N_IPDUS 2
 #define COM_BUSY 0x81
 
+#define GET_GroupSignal(GroupSignalId) \
+	(&ComConfig->ComGroupSignal[GroupSignalId])
+
+#define SignalTypeToSize(type,length) \
+	(type == UINT8   ? sizeof(uint8) : \
+	type == UINT16  ? sizeof(uint16) : \
+	type == UINT32  ? sizeof(uint32) : \
+	type == UINT8_N  ? sizeof(uint8) * length : \
+	type == SINT8   ? sizeof(sint8) : \
+	type == SINT16  ? sizeof(sint16) : \
+	type == SINT32  ? sizeof(sint32) : sizeof(boolean))
+
+#define TESTBIT(source,bit)	( *( (uint8 *)source  + (bit / 8) ) &  (uint8)(1u << (bit % 8)) )
+#define SETBIT(dest,bit)	( *( (uint8 *)dest    + (bit / 8) ) |= (uint8)(1u << (bit % 8)) )
+#define CLEARBIT(dest,bit)	( *( (uint8 *)dest    + (bit / 8) ) &= (uint8)~(uint8)(1u << (bit % 8)) )
+
 #endif /* AUTOSAR_COM_UNO_COM_H_ */
