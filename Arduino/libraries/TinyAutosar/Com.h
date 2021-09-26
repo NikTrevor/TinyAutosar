@@ -438,4 +438,6 @@ typedef struct {
 #define SETBIT(dest,bit)	( *( (uint8 *)dest    + (bit / 8) ) |= (uint8)(1u << (bit % 8)) )
 #define CLEARBIT(dest,bit)	( *( (uint8 *)dest    + (bit / 8) ) &= (uint8)~(uint8)(1u << (bit % 8)) )
 
+extern Com_Arc_Config_type Com_Arc_Config;
+
 #endif /* AUTOSAR_COM_UNO_COM_H_ */
